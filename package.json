@@ -1,6 +1,6 @@
 {
   "name": "face-movement-time-tracker",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Ivan Eidel",
   "main": "dist/main.js",
   "scripts": {
@@ -10,6 +10,7 @@
   "build": {
     "appId": "org.ivaneidel.movement-time-tracker",
     "productName": "Face Movement Time Tracker",
+    "icon": "assets/icons/app-icon",
     "directories": {
       "output": "release-builds"
     },

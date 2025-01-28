@@ -22,6 +22,7 @@ const createWindow = () => {
     width: 400,
     height: 1024,
     resizable: false,
+    icon: path.join(__dirname, "/assets/icons/app-icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
