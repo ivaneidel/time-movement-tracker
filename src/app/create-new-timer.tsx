@@ -4,13 +4,14 @@ import { WorkTimer } from "./types";
 import { createNewTimer } from "./helpers";
 
 interface PropTypes {
+  isVideoRecording: boolean;
   onCreateNewTimer: (newTimer: WorkTimer) => void;
 }
 
-const CreateNewTimer = ({ onCreateNewTimer }: PropTypes) => {
+const CreateNewTimer = ({ isVideoRecording, onCreateNewTimer }: PropTypes) => {
   const [newTimerTitle, setNewTimerTitle] = useState("");
 
-  const buttonDisabled = !newTimerTitle.trim();
+  const buttonDisabled = !isVideoRecording || !newTimerTitle.trim();
 
   const onClick = () => {
     if (!buttonDisabled) {

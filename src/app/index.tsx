@@ -8,7 +8,10 @@ import { loadModels } from "./face-detection";
 import TimerTile from "./timer-tile";
 import { createNewTimer } from "./helpers";
 import CreateNewTimer from "./create-new-timer";
+import Video from "./video";
 
+let stream: MediaStream | undefined;
+let isVideoRecording = false;
 let interval: NodeJS.Timeout | undefined;
 let detecting = false;
 let timerRunning = -1;
@@ -41,19 +44,21 @@ const MainApp = () => {
   };
 
   const start = async (index: number) => {
-    if (!modelsLoaded) {
-      await loadModels();
-      setModelsLoaded(true);
-    }
+    if (isVideoRecording) {
+      if (!modelsLoaded) {
+        await loadModels();
+        setModelsLoaded(true);
+      }
 
-    if (detecting) {
-      stop();
-    }
+      if (detecting) {
+        stop();
+      }
 
-    detecting = true;
-    timerRunning = index;
-    timers[index].isRunning = true;
-    interval = setInterval(() => detectFace(), 1000);
+      detecting = true;
+      timerRunning = index;
+      timers[index].isRunning = true;
+      interval = setInterval(() => detectFace(), 1000);
+    }
   };
 
   const stop = () => {
@@ -65,34 +70,51 @@ const MainApp = () => {
   };
 
   const onCreateNewTimer = (newTimer: WorkTimer) => {
-    timers.forEach((t) => {
-      t.isRunning = false;
-    });
-    timers.splice(0, 0, newTimer);
-    start(0);
-    setDelta(Date.now());
+    if (isVideoRecording) {
+      timers.forEach((t) => {
+        t.isRunning = false;
+      });
+      timers.splice(0, 0, newTimer);
+      start(0);
+      setDelta(Date.now());
+    }
   };
 
-  useEffect(() => {}, [timers]);
+  const startVideoRecording = async () => {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+      isVideoRecording = true;
+      setDelta(Date.now());
+    }
+  };
+
+  const stopVideoRecording = () => {
+    if (stream && !isRunning) {
+      stream.getVideoTracks().forEach((t) => t.stop());
+      isVideoRecording = false;
+      setDelta(Date.now());
+    }
+  };
 
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    });
+    startVideoRecording();
   }, []);
 
   return (
     <Card>
       <div className="container">
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          className={`${isRunning ? "running" : ""}`}
-        ></video>
-        <CreateNewTimer onCreateNewTimer={onCreateNewTimer} />
+        <Video
+          videoRef={videoRef}
+          isRunning={isRunning}
+          isVideoRecording={isVideoRecording}
+          stopVideoRecording={stopVideoRecording}
+          startVideoRecording={startVideoRecording}
+        />
+        <CreateNewTimer
+          isVideoRecording={isVideoRecording}
+          onCreateNewTimer={onCreateNewTimer}
+        />
         <List sx={{ width: "100%" }}>
           {timers.map((timer, index) => {
             return (

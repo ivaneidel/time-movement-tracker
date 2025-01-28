@@ -4,7 +4,7 @@
   "author": "Ivan Eidel",
   "main": "dist/main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron dist/main.js",
     "build": "electron-builder"
   },
   "build": {
