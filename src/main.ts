@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog } from "electron";
+import { app, BrowserWindow, dialog, screen } from "electron";
 import * as path from "path";
 
 let mainWindow: BrowserWindow | null = null;
@@ -18,13 +18,19 @@ const killApp = async () => {
 };
 
 const createWindow = () => {
+  const { width } = screen.getPrimaryDisplay().workAreaSize;
+
   mainWindow = new BrowserWindow({
     width: 400,
     height: 1024,
     resizable: false,
+    y: 0,
+    x: width - 400,
     icon: path.join(__dirname, "/assets/icons/app-icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
+      sandbox: true,
+      contextIsolation: true,
     },
   });
 
